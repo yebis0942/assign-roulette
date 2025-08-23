@@ -3,27 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>アサインおみくじ (Alpine.js版)</title>
+    <title>アサインルーレット</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .result-card {
             min-height: 288px;
         }
-        .user-avatar {
-            transition: all 0.2s ease-in-out;
-        }
-        .user-avatar:hover {
-            transform: scale(1.1);
-        }
-        .winner-highlight {
-            box-shadow: 0 0 30px 10px rgba(250, 204, 21, 0.7);
-            transform: scale(1.1);
-        }
-        /* Alpine.jsが初期化されるまで要素を隠すためのスタイル */
         [x-cloak] { display: none !important; }
     </style>
 
-    <!-- Alpine.jsのコンポーネントロジックを先に定義します -->
     <script>
         document.addEventListener('alpine:init', () => {
             Alpine.data('omikujiApp', () => ({
@@ -51,10 +39,10 @@
                 },
                 get resultMessage() {
                     if (this.winner) {
-                        return `<span class="font-bold text-indigo-600">${this.winner}</span> さんに決定！🎉`;
+                        return `<span class="font-bold text-indigo-600">${this.winner}</span>`;
                     }
                     if (this.isSpinning) return '選定中...';
-                    return '誰が選ばれるかな？';
+                    return null;
                 },
 
                 // --- メソッド (Actions) ---
@@ -90,8 +78,8 @@
                     this.winner = null;
                     const finalWinner = this.users[Math.floor(Math.random() * this.users.length)];
 
-                    let interval = 50;
-                    let duration = 3000;
+                    let interval = 80;
+                    let duration = 4500;
                     let spinCount = 0;
 
                     const spin = () => {
@@ -99,8 +87,7 @@
                         
                         setTimeout(() => {
                             duration -= interval;
-                            if (spinCount > 10) interval += spinCount;
-                            if (spinCount > 20) interval += spinCount * 2;
+                            // interval = Math.min(250, interval + Math.pow(spinCount, 0.45) * 5);
                             
                             if (duration > 0) {
                                 spinCount++;
@@ -146,14 +133,13 @@
     >
         
         <header class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-slate-700" style="font-family: 'M PLUS Rounded 1c', sans-serif;">アサインおみくじ</h1>
-            <p class="text-slate-500 mt-2">今日の担当者は誰かな？</p>
+            <h1 class="text-4xl font-bold text-slate-700">アサインルーレット</h1>
         </header>
 
         <main class="bg-white rounded-2xl shadow-lg p-6 md:p-8 space-y-8">
             <!-- 結果表示エリア -->
             <div class="result-card bg-slate-50 rounded-xl flex flex-col items-center justify-center text-center p-6 transition-all duration-300">
-                <div id="roulette" class="flex flex-col items-center justify-center" :class="{ 'winner-highlight': winner }">
+                <div id="roulette" class="flex flex-col items-center justify-center">
                     <img :src="rouletteAvatar" alt="結果" class="w-32 h-32 rounded-full mb-4 object-cover bg-slate-200">
                     <p class="text-2xl font-bold text-slate-600">
                         <span x-html="resultMessage"></span>
@@ -161,20 +147,20 @@
                 </div>
             </div>
 
-            <!-- アサインボタン -->
+            <!-- スタートボタン -->
             <button 
                 @click="startRoulette()"
                 :disabled="users.length === 0 || isSpinning"
                 class="w-full bg-indigo-600 text-white font-bold py-4 px-6 rounded-lg text-xl hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-300 transition-all duration-300 disabled:bg-slate-300 disabled:cursor-not-allowed shadow-md hover:shadow-lg disabled:shadow-none"
             >
-                アサイン！
+                スタート
             </button>
 
-            <!-- ユーザー管理エリア -->
+            <!-- メンバー管理エリア -->
             <div class="border-t border-slate-200 pt-6">
-                <h2 class="text-xl font-semibold mb-4 text-slate-600">ユーザー管理</h2>
+                <h2 class="text-xl font-semibold mb-4 text-slate-600">メンバー管理</h2>
                 
-                <!-- ユーザー追加フォーム -->
+                <!-- メンバー追加フォーム -->
                 <form @submit.prevent="addUser()" class="flex flex-col sm:flex-row gap-3 mb-6">
                     <input type="text" x-model="newUserId" placeholder="GitHub ID を入力" class="flex-grow w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 transition">
                     <button type="submit" class="bg-emerald-500 text-white font-semibold py-3 px-6 rounded-lg hover:bg-emerald-600 focus:outline-none focus:ring-4 focus:ring-emerald-300 transition shadow-sm hover:shadow-md">
@@ -182,17 +168,17 @@
                     </button>
                 </form>
 
-                <!-- ユーザー一覧 -->
+                <!-- メンバー一覧 -->
                 <div>
-                    <h3 class="text-lg font-semibold mb-3 text-slate-500">参加者リスト</h3>
+                    <h3 class="text-lg font-semibold mb-3 text-slate-500">メンバーリスト</h3>
                     <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4">
-                        <!-- template x-forでユーザー配列をループして描画 -->
+                        <!-- template x-forでメンバー配列をループして描画 -->
                         <template x-for="user in users" :key="user">
                             <div class="relative text-center group">
                                 <img :src="`https://github.com/${user}.png`" 
                                      onerror="this.onerror=null; this.src='https://placehold.co/80x80/f1f5f9/94a3b8?text=NG';"
                                      :alt="user" 
-                                     class="w-20 h-20 rounded-full mx-auto object-cover border-4 border-white shadow-md user-avatar">
+                                     class="w-20 h-20 rounded-full mx-auto object-cover border-4 border-white shadow-md">
                                 <p class="text-sm mt-2 truncate font-medium text-slate-600" x-text="user"></p>
                                 <button @click="removeUser(user)" class="delete-user-btn absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform -translate-y-1 translate-x-1 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400">
                                     ×
@@ -200,13 +186,13 @@
                             </div>
                         </template>
                     </div>
-                     <p x-show="users.length === 0" class="text-center text-slate-400 py-4">まだ誰もいません。ユーザーを追加してください。</p>
+                     <p x-show="users.length === 0" class="text-center text-slate-400 py-4">メンバーを追加してください。</p>
                 </div>
             </div>
         </main>
         
         <footer class="text-center mt-8 text-slate-400 text-sm">
-            <p>ブックマークすると参加者リストを保存できます。</p>
+            <p>ブックマークするとメンバーリストを保存できます。</p>
         </footer>
     </div>
     <!-- ロジックはheadに移動したため、body末尾のscriptタグは不要です -->
