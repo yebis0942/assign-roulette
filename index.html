@@ -158,19 +158,18 @@
 
             <!-- メンバー管理エリア -->
             <div class="border-t border-slate-200 pt-6">
-                <h2 class="text-xl font-semibold mb-4 text-slate-600">メンバー管理</h2>
+                <h2 class="text-xl font-semibold mb-4 text-slate-600">メンバー</h2>
                 
                 <!-- メンバー追加フォーム -->
                 <form @submit.prevent="addUser()" class="flex flex-col sm:flex-row gap-3 mb-6">
                     <input type="text" x-model="newUserId" placeholder="GitHub ID を入力" class="flex-grow w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 transition">
-                    <button type="submit" class="bg-emerald-500 text-white font-semibold py-3 px-6 rounded-lg hover:bg-emerald-600 focus:outline-none focus:ring-4 focus:ring-emerald-300 transition shadow-sm hover:shadow-md">
+                    <button type="submit" class="bg-emerald-500 text-white font-semibold break-keep py-3 px-6 rounded-lg hover:bg-emerald-600 focus:outline-none focus:ring-4 focus:ring-emerald-300 transition shadow-sm hover:shadow-md">
                         追加
                     </button>
                 </form>
 
                 <!-- メンバー一覧 -->
                 <div>
-                    <h3 class="text-lg font-semibold mb-3 text-slate-500">メンバーリスト</h3>
                     <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4">
                         <!-- template x-forでメンバー配列をループして描画 -->
                         <template x-for="user in users" :key="user">
