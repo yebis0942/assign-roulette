@@ -78,7 +78,7 @@
                     this.winner = null;
                     const finalWinner = this.users[Math.floor(Math.random() * this.users.length)];
 
-                    let interval = 80;
+                    let interval = 1;
                     let duration = 4500;
                     let spinCount = 0;
 
@@ -87,7 +87,7 @@
                         
                         setTimeout(() => {
                             duration -= interval;
-                            // interval = Math.min(250, interval + Math.pow(spinCount, 0.45) * 5);
+                            interval = Math.min(80, interval + spinCount);
                             
                             if (duration > 0) {
                                 spinCount++;
