@@ -72,10 +72,7 @@
                     }
                 },
                 saveUsersToHash() {
-                    // 若干の遅延を入れて、連続した変更を一度にまとめる
-                    setTimeout(() => {
-                        window.location.hash = this.users.join(',');
-                    }, 100);
+                    window.location.hash = this.users.join(',');
                 },
                 addUser() {
                     const id = this.newUserId.trim();
