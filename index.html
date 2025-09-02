@@ -23,45 +23,77 @@
         .user-card:hover .delete-user-btn {
             opacity: 1;
         }
-        #roulette.blink {
-            opacity: 0.5;
+        
+        /* --- Roulette Styles --- */
+        .roulette-wrapper {
+            height: 128px;
+            width: 128px;
+            overflow: hidden;
+            position: relative;
+            border-radius: 50%;
+            border: 4px solid #f8f9fa;
+	        box-sizing: content-box;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        .roulette-reel {
+            display: flex;
+            transition: transform 4.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+        .roulette-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .roulette-item img {
+            width: 128px;
+            height: 128px;
+            object-fit: cover;
+        }
+        .winner-indicator {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 5px solid #0d6efd; /* Primary color */
+            border-radius: 50%;
+            box-sizing: border-box;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        .winner-indicator.show {
+            opacity: 1;
         }
     </style>
 
     <script>
-        document.addEventListener('alpine:init', () => {
-            // https://placehold.co/128x128/e2e8f0/94a3b8?text=?
-            const emptyAvatar = 'data:text/plain;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22128%22%20height%3D%22128%22%20viewBox%3D%220%200%20128%20128%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%23e2e8f0%22%2F%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22m53.745%2048.385-2.08-3.3q1.09-.96%202.39-1.82%201.29-.87%202.8-1.51%201.5-.64%203.26-1.01%201.76-.36%203.81-.36%202.78%200%205.07.76%202.29.77%203.92%202.2%201.63%201.42%202.53%203.44.89%202.01.89%204.51%200%202.43-.7%204.21-.7%201.77-1.76%203.08-1.06%201.32-2.32%202.28t-2.38%201.8q-1.12.85-1.94%201.67-.82.81-.98%201.84l-.73%204.67h-5.41l-.54-5.22q-.2-1.5.43-2.64.62-1.13%201.66-2.08%201.04-.94%202.32-1.82t2.4-1.92%201.87-2.34q.76-1.29.76-3.08%200-1.16-.44-2.07-.43-.91-1.2-1.57-.76-.65-1.84-1-1.07-.36-2.32-.36-1.82%200-3.08.4-1.27.4-2.15.9t-1.49.9q-.6.4-1.08.4-1.16%200-1.67-.96m3.97%2034.43q0-.99.37-1.89t1.01-1.54%201.53-1.02q.9-.38%201.92-.38%201.03%200%201.91.38t1.53%201.02q.66.64%201.04%201.54.39.9.39%201.89%200%201.02-.39%201.9-.38.88-1.04%201.52-.65.64-1.53%201.01t-1.91.37q-1.02%200-1.92-.37-.89-.37-1.53-1.01t-1.01-1.52-.37-1.9%22%2F%3E%3C%2Fsvg%3E';
+        const emptyAvatar = 'data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22128%22%20height%3D%22128%22%20viewBox%3D%220%200%20128%20128%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%23e2e8f0%22%2F%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22m53.745%2048.385-2.08-3.3q1.09-.96%202.39-1.82%201.29-.87%202.8-1.51%201.5-.64%203.26-1.01%201.76-.36%203.81-.36%202.78%200%205.07.76%202.29.77%203.92%202.2%201.63%201.42%202.53%203.44.89%202.01.89%204.51%200%202.43-.7%204.21-.7%201.77-1.76%203.08-1.06%201.32-2.32%202.28t-2.38%201.8q-1.12.85-1.94%201.67-.82.81-.98%201.84l-.73%204.67h-5.41l-.54-5.22q-.2-1.5.43-2.64.62-1.13%201.66-2.08%201.04-.94%202.32-1.82t2.4-1.92%201.87-2.34q.76-1.29.76-3.08%200-1.16-.44-2.07-.43-.91-1.2-1.57-.76-.65-1.84-1-1.07-.36-2.32-.36-1.82%200-3.08.4-1.27.4-2.15.9t-1.49.9q-.6.4-1.08.4-1.16%200-1.67-.96m3.97%2034.43q0-.99.37-1.89t1.01-1.54%201.53-1.02q.9-.38%201.92-.38%201.03%200%201.91.38t1.53%201.02q.66.64%201.04%201.54.39.9.39%201.89%200%201.02-.39%201.9-.38.88-1.04%201.52-.65.64-1.53%201.01t-1.91.37q-1.02%200-1.92-.37-.89-.37-1.53-1.01t-1.01-1.52-.37-1.9%22%2F%3E%3C%2Fsvg%3E';
 
+        document.addEventListener('alpine:init', () => {
             Alpine.data('omikujiApp', () => ({
                 // --- 状態 (State) ---
                 users: [],
                 newUserId: '',
                 isSpinning: false,
                 winner: null,
-                rouletteUser: null, // ルーレット中に表示されるユーザー
+                rouletteItems: [], // スクロール用配列
 
                 // --- 初期化処理 ---
                 init() {
                     this.loadUsersFromHash();
-                    // ハッシュの変更を監視して、データを再読み込み
                     window.addEventListener('hashchange', () => this.loadUsersFromHash());
-                    // users配列が変更されたら、自動でハッシュを更新
                     this.$watch('users', () => this.saveUsersToHash());
+                    this.rouletteItems = [{ id: '?', avatar: emptyAvatar }];
                 },
 
                 // --- getter (算出プロパティ) ---
-                get rouletteAvatar() {
-                    if (this.winner) return `https://github.com/${this.winner}.png`;
-                    if (this.rouletteUser) return `https://github.com/${this.rouletteUser}.png`;
-                    return emptyAvatar;
-                },
                 get resultMessage() {
                     if (this.winner) {
                         return `<span class="fw-bold text-primary">${this.winner}</span>`;
                     }
                     if (this.isSpinning) return '選定中...';
-                    return null;
+                    if (this.users.length === 0) return 'メンバーを追加してスタート！';
+		            return '';
                 },
 
                 // --- メソッド (Actions) ---
@@ -92,45 +124,51 @@
 
                     this.isSpinning = true;
                     this.winner = null;
-                    const finalWinner = this.users[Math.floor(Math.random() * this.users.length)];
-
-                    let interval = 1;
-                    let duration = 4500;
-                    let spinCount = 0;
-
-                    const spin = () => {
-                        this.rouletteUser = this.users[Math.floor(Math.random() * this.users.length)];
+                    const reelEl = this.$refs.reel;
+                    
+                    // 1. リールを準備
+                    const REPEAT_COUNT = 10;
+                    let tempReel = [];
+                    for(let i = 0; i < REPEAT_COUNT; i++) {
+                        const chunk = this.users.map(u => ({ id: u, avatar: `https://github.com/${u}.png` }));
                         
+			            // Fisher-Yates shuffle
+                        for (let i = chunk.length - 1; i > 0; i--) {
+                            const j = Math.floor(Math.random() * (i + 1));
+                            [chunk[i], chunk[j]] = [chunk[j], chunk[i]];
+                        }
+
+			            tempReel.push(...chunk);
+                    }
+                    
+                    // 最終的な当選者をリールの最後の方から選ぶ
+                    const winnerIndex = tempReel.length - Math.floor(Math.random() * this.users.length) - 1;
+                    const finalWinner = tempReel[winnerIndex].id;
+                    this.rouletteItems = tempReel;
+
+                    // 2. アニメーション開始
+                    this.$nextTick(() => {
+                        // a. トランジションを一旦無効にして、リールを先頭にリセット
+                        reelEl.style.transition = 'none';
+                        reelEl.style.transform = 'translateX(0)';
+                        
+                        // b. 少し待ってからトランジションを有効にし、最終位置へ移動
                         setTimeout(() => {
-                            duration -= interval;
-                            interval = Math.min(80, interval + spinCount);
-                            
-                            if (duration > 0) {
-                                spinCount++;
-                                spin();
-                            } else {
-                                this.endRoulette(finalWinner);
-                            }
-                        }, interval);
-                    };
-                    spin();
+                            const iconWidth = 128;
+                            const offset = winnerIndex * iconWidth;
+                            reelEl.style.transition = 'transform 4.5s cubic-bezier(0.25, 0.1, 0.25, 1)';
+                            reelEl.style.transform = `translateX(-${offset}px)`;
+                        }, 20); 
+                    });
+
+                    // 3. アニメーション終了処理
+                    setTimeout(() => {
+                        this.endRoulette(finalWinner);
+                    }, 4800); // transitionの時間 + α
                 },
                 endRoulette(finalWinner) {
                     this.winner = finalWinner;
-                    
-                    // 点滅エフェクト
-                    const rouletteEl = document.getElementById('roulette');
-                    let blinkCount = 0;
-                    const maxBlinks = 6;
-                    const blinkInterval = setInterval(() => {
-                        rouletteEl.classList.toggle('blink');
-                        blinkCount++;
-                        if (blinkCount >= maxBlinks) {
-                            clearInterval(blinkInterval);
-                            rouletteEl.classList.remove('blink');
-                            this.isSpinning = false;
-                        }
-                    }, 200);
+                    this.isSpinning = false;
                 }
             }));
         });
@@ -156,8 +194,21 @@
             <!-- 結果表示エリア -->
             <div class="result-card bg-light rounded d-flex flex-column align-items-center justify-content-center text-center p-4 mb-4">
                 <div id="roulette" class="d-flex flex-column align-items-center justify-content-center">
-                    <img :src="rouletteAvatar" alt="結果" class="rounded-circle mb-4 bg-secondary" style="width: 128px; height: 128px; object-fit: cover;">
-                    <p class="h3 fw-bold text-secondary">
+                    <!-- Roulette Viewport -->
+                    <div class="roulette-wrapper mb-4">
+                        <div class="winner-indicator" :class="{ 'show': winner && !isSpinning }"></div>
+                        <div x-ref="reel" class="roulette-reel">
+                            <!-- Reel Items -->
+                            <template x-for="(item, index) in rouletteItems" :key="index">
+                                <div class="roulette-item">
+                                    <img :src="item.avatar" 
+                                         onerror="this.onerror=null; this.src=emptyAvatar;"
+                                    >
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                    <p class="h3 fw-bold text-secondary" style="min-height: 2rem;">
                         <span x-html="resultMessage"></span>
                     </p>
                 </div>
@@ -178,12 +229,12 @@
                 <h2 class="h3 fw-semibold mb-4 text-secondary">メンバー</h2>
                 
                 <!-- メンバー追加フォーム -->
-                <form @submit.prevent="addUser()" class="row g-3 mb-5">
-                    <div class="col-md-9">
+                <form @submit.prevent="addUser()" class="row row-cols-lg-auto g-3 align-items-center mb-5">
+                    <div class="flex-grow-1">
                         <input type="text" x-model="newUserId" placeholder="GitHub ID を入力" class="form-control form-control-lg">
                     </div>
-                    <div class="col-md-3">
-                        <button type="submit" class="w-100 btn btn-success btn-lg fw-semibold">
+                    <div>
+                        <button type="submit" class="btn btn-success btn-lg fw-semibold">
                             追加
                         </button>
                     </div>
@@ -192,12 +243,11 @@
                 <!-- メンバー一覧 -->
                 <div>
                     <div class="row row-cols-3 row-cols-sm-4 row-cols-md-6 g-4">
-                        <!-- template x-forでメンバー配列をループして描画 -->
                         <template x-for="user in users" :key="user">
                             <div class="col">
                                 <div class="text-center position-relative user-card">
                                     <img :src="`https://github.com/${user}.png`" 
-                                         onerror="this.onerror=null; this.src='https://placehold.co/80x80/f8f9fa/6c757d?text=NG';"
+                                         onerror="this.onerror=null; this.src=emptyAvatar;"
                                          :alt="user" 
                                          class="rounded-circle mx-auto d-block shadow" style="width: 80px; height: 80px; object-fit: cover; border: 4px solid white;">
                                     <p class="text-muted mt-2 mb-0 text-truncate fw-medium" x-text="user"></p>
